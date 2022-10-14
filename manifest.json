@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+  "name": "gitrate",
+  "description": "Rate git repos",
+  "version": "0.0.1",
+  "icons": {
+    "64": "icons/icon.png"
+  },
+  "background": {
+    "scripts": [
+      "background_script.js"
+    ]
+  },
+  "web_accessible_resources": [
+    "reviews-tab.html"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://github.com/**"
+      ],
+      "js": [
+        "content_scripts/github.js"
+      ]
+    }
+  ]
+}
