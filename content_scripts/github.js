@@ -2,6 +2,14 @@ function isRepo() {
     return document.getElementById('repository-container-header') != null;
 }
 
+function getRepo() {
+    let path = location.pathname.split('/');
+    if (path.length >= 3) {
+        return `${path[1]}/${path[2]}`;
+    }
+    return null;
+}
+
 document.addEventListener('turbo:load', () => inject());
 
 inject();
@@ -11,7 +19,11 @@ function inject() {
     if (isRepo() && !document.getElementById('reviews-tab')) {
         let paramString = location.href.split('?')[1];
         let queryString = new URLSearchParams(paramString);
-        injectReviewsTab(queryString.get('tab') === 'reviews', 0);
+        const enabled = queryString.get('tab') === 'reviews';
+        injectReviewsTab(enabled, 0);
+        if (enabled) {
+            injectReviewContent();
+        }
     }
 }
 
@@ -36,12 +48,17 @@ function injectReviewsTab(enabled, count) {
                 let element = document.getElementById('reviews-tab');
                 element.onclick = () => {
                     deselectAllTabs(tabList);
-                    history.pushState({}, '', '?tab=reviews');
+                    history.pushState({}, '', `/${getRepo()}?tab=reviews`);
                     element.classList.add('selected');
                     element.setAttribute('aria-current', 'page');
+                    injectReviewContent();
                 };
             });
     }
+}
+
+function injectReviewContent() {
+    document.getElementById('repo-content-turbo-frame').remove();
 }
 
 function deselectAllTabs(tabList) {
