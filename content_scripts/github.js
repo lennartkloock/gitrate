@@ -30,6 +30,8 @@ function inject() {
 function injectReviewsTab(enabled, count) {
     const header = document.getElementById('repository-container-header');
     let tabList = document.evaluate('nav/ul', header).iterateNext();
+    // TODO: Support responsive design
+    // let responsiveTabList = document.evaluate('nav/div/details/details-menu/ul', header).iterateNext();
     if (tabList) {
         if (enabled) {
             deselectAllTabs(tabList);
