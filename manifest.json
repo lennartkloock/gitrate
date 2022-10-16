@@ -20,6 +20,7 @@
         "*://github.com/**"
       ],
       "js": [
+        "content_scripts/loadHtml.js",
         "content_scripts/github.js"
       ]
     }

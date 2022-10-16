@@ -1,13 +1,14 @@
-document.addEventListener('turbo:load', (ev) => {
-    if (ev.detail.url.startsWith('https://github.com/torvalds/linux')) {
-        inject();
-    }
-});
+function isRepo() {
+    return document.getElementById('repository-container-header') != null;
+}
+
+document.addEventListener('turbo:load', () => inject());
 
 inject();
 
 function inject() {
-    if (!document.getElementById('reviews-tab')) {
+    // Check if this page is a repo and the tab is not already present
+    if (isRepo() && !document.getElementById('reviews-tab')) {
         let paramString = location.href.split('?')[1];
         let queryString = new URLSearchParams(paramString);
         let enabled = queryString.get('tab') === 'reviews';
@@ -21,19 +22,18 @@ function inject() {
 function injectReviewsTab(enabled, count) {
     const header = document.getElementById('repository-container-header');
     let linkList = document.evaluate('nav/ul', header).iterateNext();
-
     if (linkList) {
-        fetch(browser.runtime.getURL('/reviews-tab.html'))
-            .then(r => r.text())
-            .then((html) => html
-                .replace('{{enabled}}', enabled ? 'page' : 'false')
-                .replace('{{selected}}', enabled ? 'selected' : '')
-                .replace('{{count}}', count.toString())
-                .replace('{{commentStart}}', count ? '' : '<!--')
-                .replace('{{commentEnd}}', count ? '' : '-->'),
-            )
+        loadHtml('/reviews-tab.html',
+            {
+                enabled: enabled ? 'page' : 'false',
+                selected: enabled ? 'selected' : '',
+                count: count.toString(),
+                commentStart: count ? '' : '<!--',
+                commentEnd: count ? '' : '-->',
+            },
+        )
             .then((html) => {
-                linkList.appendChild(createElementFromHTML(html));
+                linkList.appendChild(html);
                 let element = document.getElementById('reviews-tab');
                 element.onclick = () => {
                     deselectAllTabs();
@@ -55,10 +55,4 @@ function deselectAllTabs() {
         link.classList.remove('selected');
         link.removeAttribute('aria-current');
     }
-}
-
-function createElementFromHTML(htmlString) {
-    let div = document.createElement('div');
-    div.innerHTML = htmlString.trim();
-    return div.firstChild;
 }
